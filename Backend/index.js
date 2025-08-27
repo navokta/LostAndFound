@@ -1,52 +1,39 @@
-import express, { request } from "express";
-import { PORT, mongoURL } from "./config.js";
-import mongoose from "mongoose";
-import { Item } from "./models/itemmodel.js";
-import cors from "cors";
-import { createRequire } from "module";
-const require = createRequire(import.meta.url);//to require require for multer
-
+const express = require("express");
+const { PORT, mongoURL } = require("./config");
+const mongoose = require("mongoose");
+const { Item } = require("./models/itemmodel"); // <-- also make this CommonJS
+const cors = require("cors");
+const multer = require("multer");
 
 const app = express();
 app.use(express.json());
 app.use(cors());
-app.use('/files',express.static("files"))
+app.use("/files", express.static("files"));
 
-//================================================== multer ==============================================
-
-const multer = require("multer");
-
+// ================================== Multer =================================
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, "./files");
   },
   filename: function (req, file, cb) {
     const uniqueSuffix = Date.now();
-    cb(null,uniqueSuffix+file.originalname);
+    cb(null, uniqueSuffix + file.originalname);
   },
 });
 
-const upload = multer({ storage: storage });
+const upload = multer({ storage });
 
-
-// ============================== get =================================
-
+// ============================== Routes =================================
 app.get("/item", async (req, res) => {
   try {
     const items = await Item.find({});
-    return res.status(200).json({
-      count: items.length,
-      data: items,
-    });
+    res.status(200).json({ count: items.length, data: items });
   } catch (error) {
     res.status(500).send({ message: error.message });
   }
 });
 
-// ===============================post===================================
-
-app.post("/item",upload.single("file"), async (req,res)=>{
-  console.log(req.file);
+app.post("/item", upload.single("file"), async (req, res) => {
   try {
     if (
       !req.body.name ||
@@ -55,65 +42,52 @@ app.post("/item",upload.single("file"), async (req,res)=>{
       !req.body.title ||
       !req.body.description
     ) {
-      return res.status(400).send({ message: "all fields sent" });
+      return res.status(400).send({ message: "All fields are required" });
     }
 
-   const newItem = {
+    const newItem = {
       name: req.body.name,
       email: req.body.email,
       phoneno: req.body.phoneno,
       title: req.body.title,
       description: req.body.description,
-      image: req.file.filename,
+      image: req.file?.filename || null,
     };
-   const item=await Item.create(newItem);
-   return res.status(200).send(item);
 
-  }catch(error){
+    const item = await Item.create(newItem);
+    res.status(201).json(item);
+  } catch (error) {
     console.log(error);
-    res.status(500).send("error");
+    res.status(500).send({ message: "Server error" });
   }
-
-})
-
-
-// =================================-get id ==================================
+});
 
 app.get("/item/:id", async (req, res) => {
   try {
-    const id = req.params.id;
-    const item = await Item.findById(id);
-    return res.status(200).json(item);
+    const item = await Item.findById(req.params.id);
+    if (!item) return res.status(404).send({ message: "Item not found" });
+    res.status(200).json(item);
   } catch (error) {
     res.status(500).send({ message: error.message });
   }
 });
 
-// =================================== delete ============================
-
 app.delete("/item/:id", async (req, res) => {
   try {
-    const id = req.params.id;
-    const result = await Item.findByIdAndDelete(id);
-    if (!result) {
-      return res.status(404).send({ message: "Item not found" });
-    }
-    return res.status(200).send({ message: "Item deleted" });
+    const result = await Item.findByIdAndDelete(req.params.id);
+    if (!result) return res.status(404).send({ message: "Item not found" });
+    res.status(200).send({ message: "Item deleted" });
   } catch (error) {
     console.log(error.message);
-    return res.status(500).send({ message: error.message });
+    res.status(500).send({ message: error.message });
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`server started at port ${PORT}`);
-});
-
+// ============================== Start Server ==============================
 mongoose
   .connect(mongoURL)
   .then(() => {
-    console.log("Connected to database");
+    console.log("✅ Connected to database:");
+    app.listen(PORT, () => console.log(`🚀 Server started at port ${PORT}`));
   })
-  .catch((error) => {
-    console.log(error);
-  });
+  .catch((error) => console.log("❌ DB connection error:", error.message));

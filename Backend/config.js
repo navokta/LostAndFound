@@ -1,3 +1,6 @@
-export const PORT = process.env.PORT || 8000;
+require("dotenv").config({ path: ".env.local" });
 
-export const mongoURL ="mongodb+srv://root:SNzJheXm5ObQeQrh@lostandfound.toc33hc.mongodb.net/lost-items?retryWrites=true&w=majority";
+const PORT = process.env.PORT || 8000;
+const mongoURL = process.env.MONGO_URL || "mongodb://localhost:27017/lost-and-found";
+
+module.exports = { PORT, mongoURL };
