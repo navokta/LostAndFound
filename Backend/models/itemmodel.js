@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const itemSchema = mongoose.Schema(
+const itemSchema = new mongoose.Schema(
   {
     name: {
       type: String,
@@ -10,20 +10,20 @@ const itemSchema = mongoose.Schema(
       type: String,
       required: true,
     },
-   phoneno: {
+    phoneno: {
       type: String,
       required: true,
     },
-    title:{
-        type:String,
-        required: true,
+    title: {
+      type: String,
+      required: true,
     },
-    description:{
-        type:String,
-        required: true,
+    description: {
+      type: String,
+      required: true,
     },
-    image:{
-        type: String,
+    image: {
+      type: String,
     },
   },
   {
@@ -31,4 +31,5 @@ const itemSchema = mongoose.Schema(
   }
 );
 
-export const Item = mongoose.model("itemSchema", itemSchema);
+// ✅ Use a proper model name (capitalized, singular)
+export const Item = mongoose.model("Item", itemSchema);

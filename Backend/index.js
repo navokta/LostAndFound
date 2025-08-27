@@ -1,9 +1,9 @@
 const express = require("express");
-const { PORT, mongoURL } = require("./config");
 const mongoose = require("mongoose");
-const { Item } = require("./models/itemmodel"); // <-- also make this CommonJS
 const cors = require("cors");
 const multer = require("multer");
+const { PORT, mongoURL } = require("./config");
+import { Item } from "./models/itemmodel.js";
 
 const app = express();
 app.use(express.json());
