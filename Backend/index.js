@@ -10,7 +10,7 @@ app.use(express.json());
 app.use(cors());
 app.use("/files", express.static("files"));
 
-// =============================== Multer =================================
+// ================================== Multer =================================
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, "./files");
@@ -24,8 +24,6 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 // ============================== Routes =================================
-
-// Get all items
 app.get("/item", async (req, res) => {
   try {
     const items = await Item.find({});
@@ -35,7 +33,6 @@ app.get("/item", async (req, res) => {
   }
 });
 
-// Create item
 app.post("/item", upload.single("file"), async (req, res) => {
   try {
     if (
@@ -65,7 +62,6 @@ app.post("/item", upload.single("file"), async (req, res) => {
   }
 });
 
-// Get item by id
 app.get("/item/:id", async (req, res) => {
   try {
     const item = await Item.findById(req.params.id);
@@ -76,7 +72,6 @@ app.get("/item/:id", async (req, res) => {
   }
 });
 
-// Delete item
 app.delete("/item/:id", async (req, res) => {
   try {
     const result = await Item.findByIdAndDelete(req.params.id);
@@ -92,7 +87,7 @@ app.delete("/item/:id", async (req, res) => {
 mongoose
   .connect(mongoURL)
   .then(() => {
-    console.log(`✅ Connected to database: ${mongoURL}`);
+    console.log("✅ Connected to database:");
     app.listen(PORT, () => console.log(`🚀 Server started at port ${PORT}`));
   })
   .catch((error) => console.log("❌ DB connection error:", error.message));
