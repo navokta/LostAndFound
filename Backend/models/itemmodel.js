@@ -14,7 +14,5 @@ const itemSchema = new mongoose.Schema(
   }
 );
 
-// ✅ Proper model name: singular, capitalized
-const Item = mongoose.model("Item", itemSchema);
-
-module.exports = Item;
+// Export properly for CommonJS
+module.exports = mongoose.model("Item", itemSchema);

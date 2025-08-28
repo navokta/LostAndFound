@@ -1,7 +1,7 @@
 const express = require("express");
 const { PORT, mongoURL } = require("./config");
 const mongoose = require("mongoose");
-const { Item } = require("./models/itemmodel"); // <-- also make this CommonJS
+const Item = require("./models/itemmodel");
 const cors = require("cors");
 const multer = require("multer");
 
@@ -87,7 +87,7 @@ app.delete("/item/:id", async (req, res) => {
 mongoose
   .connect(mongoURL)
   .then(() => {
-    console.log("✅ Connected to database:");
+    console.log("✅ Connected to database:", mongoURL);
     app.listen(PORT, () => console.log(`🚀 Server started at port ${PORT}`));
   })
   .catch((error) => console.log("❌ DB connection error:", error.message));
